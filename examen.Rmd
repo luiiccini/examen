@@ -1,0 +1,49 @@
+---
+title: "examen"
+author: "Luis Sánchez"
+date: "6/30/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source('der_num.R')
+```
+
+```{r, echo=F}
+curve(1.5*x^2-250*x+10000,from = 0, to=1000,ylab = 'Costo total',xlab = 'Cantidades')
+```
+
+```{r, echo=T}
+der_num <- function(x,f,h=0.01,type=1){
+  if (type==1){
+  derivada <- (f(x+h) - f(x-h))/(2*h)
+  return(derivada)
+  }else{
+  derivada <- (f(x+h) - f(x))/(h)
+  return(derivada)
+  }
+}
+
+max_min_f <- function(x,f,h=0.01,type=1,x0=0,delta = 0.001){
+  derivada <- 1
+  x <- x0
+  while (abs(derivada)>0.001) {
+    derivada <- der_num(x,f,h,type)
+    x <- x + delta 
+  }
+  return(x)
+}
+
+#El valor mínimo para q* se alcanza en:
+costo <- function(x) 1.5*x^2-250*x+10000
+
+min <- max_min_f(f=costo,x0=80)
+
+min
+
+#El costo se minimiza en
+
+costo(min)
+```
+
