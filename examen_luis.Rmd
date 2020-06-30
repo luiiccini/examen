@@ -178,3 +178,4 @@ tabla <- data.frame(Sigmas=Sigmas, Calls=Calls)
 
 ```
 
+Como es de esperarse, a medida que gradualmente incrementa la desviación estándar (riesgo asociado al activo), incrementa el costo de la prima.
