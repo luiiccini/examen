@@ -8,7 +8,12 @@ output: word_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 source('der_num.R')
+library(lubridate)
+library(quantmod)
+
 ```
+
+> Ejercicio 1
 
 ```{r, echo=F}
 curve(1.5*x^2-250*x+10000,from = 0, to=1000,ylab = 'Costo total',xlab = 'Cantidades')
@@ -45,5 +50,102 @@ min
 #El costo se minimiza en
 
 costo(min)
+```
+
+> Ejercicio 3
+
+```{r}
+
+#Recolección de datos
+data_env<-new.env()
+symbols<-c("AMXL.MX", "BIMBOA.MX", "CEMEXCPO.MX", "GMEXICOB.MX","ALFAA.MX")
+inicio<-as.Date("2019-01-01")
+fin<-as.Date("2020-01-01")
+
+getSymbols(Symbols=symbols, env=data_env, from=inicio, 
+           to=fin)
+
+Datos<-do.call(merge, eapply(data_env, Cl ))
+Datos<-Datos[complete.cases(Datos),]
+
+Datos_rend <- apply(Datos, 2, ROC, type="discrete")
+Datos_rend <- as.data.frame(Datos_rend[-1,])
+
+
+###############################
+
+
+r <- 0.049
+T <- 12/12		
+dt <- 1/(250*T)
+n <- as.double(length(Datos$CEMEXCPO.MX.Close))
+trayectorias <- 1000
+suma <- 0
+
+#fechas <-  as.Date(index(Datos),tryFormats = c("%Y-%m-%d", "%Y/%m/%d"))
+Calls <- c()
+Sigmas <- c()
+
+
+for(k in 0:5){
+  
+  sigma <- 0.15 + k*0.01
+  suma <- 0
+  
+  sigma1 <- sd(Datos_rend[,1])
+  sigma2 <- sd(Datos_rend[,2])
+  sigma3 <- sd(Datos_rend[,3])
+  sigma4 <- sd(Datos_rend[,4])
+  sigma5 <- sd(Datos_rend[,5])
+  
+  for(j in 1:trayectorias){
+    
+    S1 <- as.double(Datos[n,1])
+    S2 <- as.double(Datos[n,2])
+    S3 <- as.double(Datos[n,3])
+    S4 <- as.double(Datos[n,4])
+    S5 <- as.double(Datos[n,5])
+    
+    K <- (S1+S2+S3+S4+S5)/5
+    
+    for(i in 1:(T*250)){
+      Z0 <- rnorm(1,0,1)
+      dW <- Z0*(dt^0.5)
+      dS <- (r*dt + sigma*dW)*S1
+      S1 <- S1 + dS
+      
+      Z0 <- rnorm(1,0,1)
+      dW <- Z0*(dt^0.5)
+      dS <- (r*dt + sigma*dW)*S2
+      S2 <- S2 + dS
+      
+      Z0 <- rnorm(1,0,1)
+      dW <- Z0*(dt^0.5)
+      dS <- (r*dt + sigma*dW)*S3
+      S3 <- S3 + dS
+      
+      Z0 <- rnorm(1,0,1)
+      dW <- Z0*(dt^0.5)
+      dS <- (r*dt + sigma*dW)*S4
+      S4 <- S4 + dS
+      
+      Z0 <- rnorm(1,0,1)
+      dW <- Z0*(dt^0.5)
+      dS <- (r*dt + sigma*dW)*S5
+      S5 <- S5 + dS
+    }
+    funcion_pago <- max(S1-K, S2-K, S3-K, S4-K, S5-K, 0)	
+    suma <- suma + funcion_pago
+  }
+  esperanza <- suma/trayectorias
+  C <- esperanza*exp(-r*T)
+  Calls <- c(Calls,C)
+  Sigmas <- c(Sigmas,sigma)
+  
+}
+
+tabla <- data.frame(Sigmas=Sigmas, Calls=Calls)
+View(tabla)
+
 ```
 
