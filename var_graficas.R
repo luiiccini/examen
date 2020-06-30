@@ -10,6 +10,9 @@ setwd()
 data_env<- new.env()
 symbols<- c("AMXL.MX")
 
+#symbols<- c("AMXL.MX", "BIMBOA.MX", "CEMEXCPO.MX", "GMEXICOB.MX","ALFAA.MX","GFNORTEO.MX","FEMSAUBD.MX",
+ #           "ALSEA.MX","ALPEKA.MX","GCARSOA1.MX" )
+
 getSymbols(Symbols=symbols, env=data_env, from="2015-01-01", 
 	to="2019-12-31")
 
